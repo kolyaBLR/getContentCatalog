@@ -1,7 +1,6 @@
 <?php
 function getContent(string $directory, string $span)
 {
-    error_reporting(0);
     try {
         $files = scandir($directory);
         if (!$files) {
