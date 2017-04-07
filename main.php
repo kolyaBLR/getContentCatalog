@@ -1,18 +1,23 @@
 <?php
-error_reporting(0);
-function showTree($folder, $space)
+function getContent(string $directory, string $span)
 {
-    $files = scandir($folder);
-    foreach($files as $file) {
-        if (($file == '.') || ($file == '..')){
-            continue;
+    error_reporting(0);
+    try {
+        $files = scandir($directory);
+        if (!$files) {
+            throw new Exception();
         }
-        $f0 = $folder.'/'.$file;
-        if (is_dir($f0)) {
-            echo $space.$file."<br />";
-            showTree($f0, $space.'&nbsp;&nbsp;');
+        foreach ($files as $file) {
+            $enclosed = $directory . "/" . $file;
+            if ($file == '.' || $file == '..') {
+                continue;
+            } elseif (is_file($enclosed) || is_link($enclosed)) {
+                echo "\n" . $span . $file;
+            } elseif (is_dir($enclosed)) {
+                echo "\n" . $span . $file;
+                getContent($enclosed, $span . '    ');
+            }
         }
-        else echo $space.$file."<br />";
-    }
+    } catch (Exception $exception) {}
 }
-showTree("./", "");
+getContent(".", "");
