@@ -1,22 +1,54 @@
 <?php
-function getContent(string $directory, string $span)
+function getContent(
+    string $directory = '.',
+    string $finalSpan = '',
+    string $sizeSpan = '    ',
+    string $transfer = "\n",
+    int $linkCount = 5,
+    int $count = 0,
+    bool $isLink = false
+)
 {
     try {
         $files = scandir($directory);
-        if (!$files) {
-            throw new Exception();
-        }
         foreach ($files as $file) {
-            $enclosed = $directory . "/" . $file;
-            if ($file == '.' || $file == '..') {
+            $enclosed = $directory . '/' . $file;
+            if ($count == $linkCount) {
+                break;
+            } elseif ($file == '.' || $file == '..') {
                 continue;
-            } elseif (is_file($enclosed) || is_link($enclosed)) {
-                echo "\n" . $span . $file;
+            } else {
+                echo $finalSpan . $file . $transfer;
+            }
+
+            if (is_link($enclosed) && !$isLink) {
+                getContent($enclosed, $finalSpan . $sizeSpan, $sizeSpan, $transfer, $linkCount, $count + 1, true);
             } elseif (is_dir($enclosed)) {
-                echo "\n" . $span . $file;
-                getContent($enclosed, $span . '    ');
+                $localCount = $isLink ? $count + 1 : $count;
+                getContent($enclosed, $finalSpan . $sizeSpan, $sizeSpan, $transfer, $linkCount, $localCount, $isLink);
             }
         }
-    } catch (Exception $exception) {}
+    } catch (Error $error) {
+        $errorMessage = is_link($directory) && is_file($directory) ? '' : "$finalSpan error read: $directory" . $transfer;
+        echo $errorMessage;
+    }catch (Exception $exception) {
+        echo '(exception)' . $transfer;
+    }
 }
-getContent(".", "");
+
+function configurationsParametrs()
+{
+    set_error_handler("getContent");
+    $transfer = '';
+    $sizeSpan = '';
+    if ('cli' != php_sapi_name()) {
+        $transfer = '<br/>';
+        $sizeSpan = '&nbsp;&nbsp;&nbsp;&nbsp;';
+    } else {
+        $sizeSpan = '    ';
+    }
+    $transfer .= "\n";
+    getContent('.', '', $sizeSpan, $transfer);
+}
+configurationsParametrs();
+?>
