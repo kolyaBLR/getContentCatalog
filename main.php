@@ -1,5 +1,5 @@
 <?php
-function getContent(
+function showContent(
     string $directory = '.',
     string $finalSpan = '',
     string $sizeSpan = '    ',
@@ -22,10 +22,10 @@ function getContent(
             }
 
             if (is_link($enclosed) && !$isLink) {
-                getContent($enclosed, $finalSpan . $sizeSpan, $sizeSpan, $transfer, $linkCount, $count + 1, true);
+                showContent($enclosed, $finalSpan . $sizeSpan, $sizeSpan, $transfer, $linkCount, $count + 1, true);
             } elseif (is_dir($enclosed)) {
                 $localCount = $isLink ? $count + 1 : $count;
-                getContent($enclosed, $finalSpan . $sizeSpan, $sizeSpan, $transfer, $linkCount, $localCount, $isLink);
+                showContent($enclosed, $finalSpan . $sizeSpan, $sizeSpan, $transfer, $linkCount, $localCount, $isLink);
             }
         }
     } catch (Error $error) {
@@ -38,7 +38,7 @@ function getContent(
 
 function configurationsParametrs()
 {
-    set_error_handler("getContent");
+    set_error_handler("showContent");
     $transfer = '';
     $sizeSpan = '';
     if ('cli' != php_sapi_name()) {
@@ -48,7 +48,7 @@ function configurationsParametrs()
         $sizeSpan = '    ';
     }
     $transfer .= "\n";
-    getContent('.', '', $sizeSpan, $transfer);
+    showContent('.', '', $sizeSpan, $transfer);
 }
 configurationsParametrs();
 ?>
